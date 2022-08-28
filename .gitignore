@@ -1,3 +1,8 @@
+#container_volumes 
+containers_volumes
+
+#keycloak-base-themes
+keycloak-base-themes
 # Logs
 logs
 *.log

@@ -1,0 +1,60 @@
+{
+  "folders": [
+    {
+      "path": "."
+    }
+  ],
+  "settings": {},
+  "launch": {
+		"configurations": [
+			{
+				"type": "chrome",
+				"request": "launch",
+				"name": "launch:keycloak",
+				"url": "http://localhost:8080",
+				"preLaunchTask": "docker:compose:up",
+				"postDebugTask": "docker:compose:down"
+			},
+		]
+	},
+  "tasks": {
+    "version": "2.0.0",
+    "tasks": [
+		{
+			"type": "docker-compose",
+			"label": "docker:compose:up",
+			"isBackground": false,
+			"dockerCompose": {
+				"up": {
+					"detached": true,
+					"build": true,
+					"customOptions": "",
+					"services": ["keycloak","postgres","pgadmin"]
+				},
+				"files": ["${workspaceFolder}/docker-compose.yaml"],
+			},
+			"problemMatcher": []
+		},
+		{
+			"type": "docker-compose",
+			"label": "docker:compose:down",
+			"dockerCompose": {
+				"down": {"removeVolumes":false},
+				"files": ["${workspaceFolder}/docker-compose.yaml"]
+			},      
+		},
+		{
+			"type": "shell",
+			"label": "copy:keycloak:base:themes",
+			//"dependsOn": ["docker:compose:up"],
+			"command": "./scripts/copy-keycloak-base-themes.sh",
+		}
+    ]
+},
+	"extensions": {
+		"recommendations": [
+			"spmeesseman.vscode-taskexplorer",
+			"dcortes92.FreeMarker"
+		]
+	}
+}

@@ -1,0 +1,10 @@
+.env
+.env*
+.dockerignore
+Dockerfile
+docker-compose.yaml
+keycloak-with-vue-vuetify-theme.code-workspace
+LICENSE
+README.md
+certs/
+keycloak-vue/

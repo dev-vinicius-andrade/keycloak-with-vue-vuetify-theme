@@ -1,0 +1,76 @@
+version: "3.3"
+
+services:
+    keycloak: 
+        container_name: keycloak
+        image: keycloak:latest
+        command: $KEYCLOAK_DOCKER_COMMAND
+        user: root
+        hostname: $KEYCLOAK_HOSTNAME
+        build:
+            context: .
+            dockerfile: Dockerfile
+            target: $KEYCLOAK_DOCKER_BUILD_TARGET
+        depends_on: 
+          - "postgres" 
+        environment:
+          KC_DB_URL: jdbc:postgresql://postgres/keycloak
+          KC_HOSTNAME: $KEYCLOAK_HOSTNAME
+          KC_DB_USERNAME: $KC_DB_USERNAME
+          KC_DB_PASSWORD: $KC_DB_PASSWORD
+          KEYCLOAK_ADMIN: $KEYCLOAK_ADMIN
+          KEYCLOAK_ADMIN_PASSWORD: $KEYCLOAK_ADMIN_PASSWORD 
+        volumes:
+         - ./vue/login/dist/keycloak/themes:/opt/keycloak/themes 
+        # - ./certs/fullchain.pem:/opt/keycloak/server.crt.pem
+        # - ./certs//key.pem:/opt/keycloak/server.key.pem
+        ports: 
+          - $KEYCLOAK_HTTP_PORT:$KEYCLOAK_HTTP_PORT
+          - $KEYCLOAK_HTTPS_PORT:$KEYCLOAK_HTTPS_PORT
+        networks: 
+          - keycloak-network 
+    postgres:
+        container_name: 'postgres'
+        image: postgres
+        restart: unless-stopped
+        healthcheck:
+          test: [ "CMD", "pg_isready", "-q", "-d", "postgres", "-U", "root" ]
+          timeout: 45s
+          interval: 10s
+          retries: 10        
+        environment:
+          POSTGRES_PASSWORD: $POSTGRES_PASSWORD
+          APP_DB_USER: $APP_DB_USER
+          APP_DB_PASS: $APP_DB_PASS
+          APP_DB_NAME: $APP_DB_NAME
+        volumes:
+            - ./containers_volumes/postgres:/var/lib/postgresql/data:rw
+            - ./scripts/database:/docker-entrypoint-initdb.d/
+
+
+        networks:
+            - keycloak-network
+      
+    pgadmin:
+        container_name: 'pgadmin'
+        image: dpage/pgadmin4
+        restart: unless-stopped
+        user: root
+        environment:
+            PGADMIN_DEFAULT_EMAIL: $PGADMIN_DEFAULT_EMAIL
+            PGADMIN_DEFAULT_PASSWORD: $PGADMIN_DEFAULT_PASSWORD
+        ports:
+            - "16543:80"
+        depends_on:
+            - postgres
+        networks:
+            - keycloak-network
+        volumes:
+            - /containers_volumes/pgadmin:/var/lib/pgadmin:rw
+networks:
+  keycloak-network:
+    driver: bridge
+
+
+
+
