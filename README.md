@@ -1,5 +1,6 @@
 # keycloak-with-vue-vuetify-theme
 Keycloak themes using vue + vuetify
+**IMPORTANT: This project is not yet finished, having problems making it until now.**
 
 # Project Structure
 - certs - A folder to map your certificates for the keycloak server
